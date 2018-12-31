@@ -540,7 +540,8 @@ impl<N: Real> Multibody<N> {
         accs.fill(N::zero());
 
         for i in 0..self.rbs.len() {
-            let external_forces;
+            //let external_forces;
+            let mut external_forces = self.rbs[i].external_forces;
             {
                 let rb = &self.rbs[i];
 
@@ -584,7 +585,8 @@ impl<N: Real> Multibody<N> {
                     gyroscopic = N::zero();
                 }
 
-                external_forces = Force::new(gravity_force, -gyroscopic) - rb.inertia * acc;
+                //external_forces = Force::new(gravity_force, -gyroscopic) - rb.inertia * acc;
+                external_forces += Force::new(gravity_force, -gyroscopic) - rb.inertia * acc;
                 accs.gemv_tr(
                     N::one(),
                     &self.body_jacobians[i],
@@ -592,7 +594,8 @@ impl<N: Real> Multibody<N> {
                     N::one(),
                 );
             }
-            self.rbs[i].external_forces += external_forces;
+            //self.rbs[i].external_forces += external_forces;
+            self.rbs[i].external_forces = external_forces;
         }
 
         let damping = DVectorSlice::from_slice(&self.damping, self.ndofs);
